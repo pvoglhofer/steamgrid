@@ -58,6 +58,7 @@ func startApplication() {
 	skipHero := flag.Bool("skiphero", false, "Skip search and processing hero artwork")
 	skipLogo := flag.Bool("skiplogo", false, "Skip search and processing logo artwork")
 	nonSteamOnly := flag.Bool("nonsteamonly", false, "Only search artwork for Non-Steam-Games")
+	onlyMissingArtwork := flag.Bool("onlymissingartwork", false, "Only download artworks missing on the official servers")
 	flag.Parse()
 	if flag.NArg() == 1 {
 		steamDir = &flag.Args()[0]
@@ -192,7 +193,7 @@ func startApplication() {
 				// Download if missing.
 				///////////////////////
 				if game.ImageSource == "" {
-					from, err := DownloadImage(gridDir, game, artStyle, artStyleExtensions, *skipSteam, *steamGridDBApiKey, steamGridFilter, *IGDBApiKey, *skipGoogle)
+					from, err := DownloadImage(gridDir, game, artStyle, artStyleExtensions, *skipSteam, *steamGridDBApiKey, steamGridFilter, *IGDBApiKey, *skipGoogle, *onlyMissingArtwork)
 					if err != nil && err.Error() == "SteamGridDB authorization token is missing or invalid" {
 						// Wrong api key
 						*steamGridDBApiKey = ""
