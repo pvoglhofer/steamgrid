@@ -60,6 +60,7 @@ func startApplication() {
 	nonSteamOnly := flag.Bool("nonsteamonly", false, "Only search artwork for Non-Steam-Games")
 	appIDs := flag.String("appids", "", "Comma separated list of appIds that should be processed")
 	onlyMissingArtwork := flag.Bool("onlymissingartwork", false, "Only download artworks missing on the official servers")
+	forceSteam := flag.Bool("forcesteam", false, "Delete custom artwork if official version exists")
 	flag.Parse()
 	if flag.NArg() == 1 {
 		steamDir = &flag.Args()[0]
@@ -88,6 +89,10 @@ func startApplication() {
 
 	if *skipSteam && *onlyMissingArtwork {
 		errorAndExit(errors.New("Can't check if official artwork is missing with steam turned off"))
+	}
+
+	if *skipSteam && *forceSteam {
+		errorAndExit(errors.New("Can't check if official artwork exists with steam turned off"))
 	}
 
 	fmt.Println("Loading overlays...")
@@ -192,6 +197,17 @@ func startApplication() {
 				err = removeExisting(gridDir, game.ID, artStyleExtensions)
 				if err != nil {
 					fmt.Println(err.Error())
+				}
+
+				if *forceSteam && OfficialArtworkExists(game, artStyle, artStyleExtensions) {
+					if artStyle == "Banner" {
+						id, err := strconv.ParseUint(game.ID, 10, 64)
+						if err == nil {
+							imagePath := filepath.Join(gridDir, strconv.FormatUint(id<<32|0x02000000, 10)+artStyleExtensions[0]+game.ImageExt)
+							err = os.Remove(imagePath)
+						}
+					}
+					continue
 				}
 
 				///////////////////////

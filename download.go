@@ -318,6 +318,27 @@ func tryDownload(url string) (*http.Response, error) {
 	return response, nil
 }
 
+func OfficialArtworkExists(game *Game, artStyle string, artStyleExtensions []string) (exists bool) {
+	exists = false
+	response, err := tryDownload(fmt.Sprintf(akamaiURLFormat+artStyleExtensions[2], game.ID))
+	fmt.Println(fmt.Sprintf(akamaiURLFormat+artStyleExtensions[2], game.ID))
+	if err == nil && response != nil {
+		fmt.Println("found 1")
+		exists = true
+		return
+	}
+
+	response, err = tryDownload(fmt.Sprintf(steamCdnURLFormat+artStyleExtensions[2], game.ID))
+	fmt.Println(fmt.Sprintf(steamCdnURLFormat+artStyleExtensions[2], game.ID))
+	if err == nil && response != nil {
+		fmt.Println("found 2")
+		exists = true
+		return
+	}
+
+	return
+}
+
 // Primary URL for downloading grid images.
 const akamaiURLFormat = `https://steamcdn-a.akamaihd.net/steam/apps/%v/`
 
